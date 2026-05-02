@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Foxi Gram</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        
+        <header class="app-header">
+            <div class="header-left"><div class="logo-icon">🦊</div><h1 class="app-title">Foxi Gram</h1></div>
+            <div class="header-right"><div class="notification-bell" onclick="showNotifications()"><i class="fas fa-bell"></i><span class="badge" id="notificationBadge">0</span></div></div>
+        </header>
+
+        <main class="main-content" id="mainContent">
+            
+            <div class="page active" id="homePage">
+                <div class="balance-card glass-card"><div class="balance-row"><div class="balance-item"><span class="balance-label">💰 USDT Balance</span><span class="balance-value" id="usdtBalance">0.00</span><span class="balance-currency">USDT</span></div><div class="divider"></div><div class="balance-item"><span class="balance-label">⛏ Hashrate</span><span class="balance-value" id="hashrateBalance">0.00</span><span class="balance-currency">H/s</span></div></div></div>
+                <div class="mining-card glass-card" id="miningCard"><div class="mining-header"><span>⛏ Mining Active</span><span class="mining-rate" id="miningRate">0.0000 USDT/min</span></div><div class="mining-animation"><div class="mining-bar"><div class="mining-fill" id="miningFill"></div></div></div><div class="mining-earned">Earned today: <span id="miningEarned">0.0000 USDT</span></div></div>
+                <div class="spins-card glass-card" id="spinsCard"><div class="spins-header"><h3>🎰 Free Spins</h3><span class="spins-count" id="spinsCount">0 Spins Left</span></div><div class="spins-slots"><div class="slot">🍒</div><div class="slot">💎</div><div class="slot">🎰</div></div><button class="spin-btn gradient-purple" id="spinButton" onclick="useFreeSpin()">SPIN NOW 🎰</button><p class="spins-info">Complete tasks to earn free spins!</p></div>
+                <div class="claim-card gradient-purple" id="claimCard"><div class="claim-content"><div class="claim-info"><h3>🎁 Daily Reward</h3><p>Claim your daily bonus!</p></div><button class="claim-btn" id="claimBtn" onclick="claimDailyReward()">Claim +<span id="dailyRewardAmount">0.50</span> USDT</button></div><div class="claim-progress"><div class="progress-bar"><div class="progress-fill" id="dailyProgress" style="width: 0%"></div></div><span class="progress-text" id="dailyTimer">Ready to claim</span></div></div>
+                <div class="section"><h2 class="section-title">🎮 Quick Games</h2><div class="games-grid">
+                    <div class="game-card" onclick="navigateTo('crash')"><div class="game-icon gradient-orange">📈</div><span class="game-name">Crash</span></div>
+                    <div class="game-card" onclick="navigateTo('roulette')"><div class="game-icon gradient-blue">🎯</div><span class="game-name">Roulette</span></div>
+                    <div class="game-card" onclick="navigateTo('mines')"><div class="game-icon gradient-purple">💣</div><span class="game-name">Mines</span></div>
+                    <div class="game-card" onclick="navigateTo('coinflip')"><div class="game-icon gradient-orange">🪙</div><span class="game-name">Coinflip</span></div>
+                </div></div>
+                <div class="section"><h2 class="section-title">📋 Tasks for Spins</h2><div class="tasks-feed" id="tasksFeed"></div></div>
+            </div>
+
+            <!-- CRASH -->
+            <div class="page" id="crashPage"><div class="crash-game-container"><div class="crash-header"><button class="back-btn" onclick="navigateTo('home')">← Back</button><h2>📈 Crash</h2><span></span></div><div class="crash-display" id="crashDisplay"><div class="crash-multiplier" id="crashMultiplier">1.00x</div><div class="crash-status" id="crashStatus">Place your bet</div></div><div class="crash-history" id="crashHistory"><span class="history-badge green">2.5x</span><span class="history-badge red">1.2x</span><span class="history-badge red">1.0x</span><span class="history-badge green">3.1x</span><span class="history-badge red">1.0x</span></div><div class="crash-controls glass-card"><div class="bet-input-row"><label>Bet Amount (USDT)</label><div class="bet-input-group"><input type="number" id="crashBetAmount" value="0.10" min="0.10" max="100" step="0.10"><button class="bet-half" onclick="setHalfBet()">½</button><button class="bet-double" onclick="setDoubleBet()">2×</button></div></div><div class="crash-buttons"><button class="crash-bet-btn gradient-orange" id="crashBetBtn" onclick="placeCrashBet()">Place Bet</button><button class="crash-cashout-btn gradient-purple" id="crashCashoutBtn" onclick="cashOutCrash()" style="display:none;">Cash Out (<span id="currentWin">0.00</span> USDT)</button></div></div></div></div>
+
+            <!-- ROULETTE -->
+            <div class="page" id="roulettePage"><div class="roulette-container"><div class="roulette-header"><button class="back-btn" onclick="navigateTo('home')">← Back</button><h2>🎯 Roulette</h2><span></span></div><div class="roulette-wheel-container"><div class="roulette-wheel" id="rouletteWheel">🎯</div><div class="roulette-result" id="rouletteResult">Spin to win!</div></div><div class="roulette-bets glass-card"><div class="bet-input-row"><label>Bet Amount (USDT)</label><input type="number" id="rouletteBetAmount" value="0.10" min="0.10" max="50" step="0.10" style="width:100%;padding:12px;background:var(--bg-primary);border:1px solid var(--border-color);border-radius:12px;color:white;font-size:18px;text-align:center;"></div><div class="roulette-options"><button class="roulette-btn red-btn" onclick="placeRouletteBet('red')">🔴 Red (2x)</button><button class="roulette-btn green-btn" onclick="placeRouletteBet('green')">🟢 Green (14x)</button><button class="roulette-btn black-btn" onclick="placeRouletteBet('black')">⚫ Black (2x)</button></div></div></div></div>
+
+            <!-- MINES -->
+            <div class="page" id="minesPage"><div class="mines-container"><div class="mines-header"><button class="back-btn" onclick="navigateTo('home')">← Back</button><h2>💣 Mines</h2><span></span></div><div class="mines-info glass-card"><div class="mines-stats"><span>💎 Gems: <b id="minesGemsFound">0</b></span><span>💰 Win: <b id="minesCurrentWin">0.00</b> USDT</span></div><div class="mines-status" id="minesStatus">Set bombs & place bet</div></div><div class="mines-grid" id="minesGrid"></div><div class="mines-result" id="minesResult"></div><div class="mines-controls glass-card"><div class="bet-input-row"><label>Bet Amount (USDT)</label><input type="number" id="minesBetAmount" value="0.10" min="0.10" max="50" step="0.10" style="width:100%;padding:12px;background:var(--bg-primary);border:1px solid var(--border-color);border-radius:12px;color:white;font-size:18px;text-align:center;"></div><div class="bet-input-row"><label>Number of Bombs (1-10)</label><input type="number" id="minesBombCount" value="3" min="1" max="10" style="width:100%;padding:12px;background:var(--bg-primary);border:1px solid var(--border-color);border-radius:12px;color:white;font-size:18px;text-align:center;"></div><button class="mines-start-btn gradient-purple" id="minesStartBtn" onclick="startMinesGame()">Start Game</button><button class="mines-cashout-btn gradient-orange" id="minesCashoutBtn" onclick="cashOutMines()" style="display:none;">Cash Out</button></div></div></div>
+
+            <!-- COINFLIP -->
+            <div class="page" id="coinflipPage"><div class="coinflip-container"><div class="coinflip-header"><button class="back-btn" onclick="navigateTo('home')">← Back</button><h2>🪙 Coinflip</h2><span></span></div><div class="coinflip-coin" id="coinflipCoin">🪙</div><div class="coinflip-result" id="coinflipResult">Pick Heads or Tails</div><div class="coinflip-bets glass-card"><div class="bet-input-row"><label>Bet Amount (USDT)</label><input type="number" id="coinflipBetAmount" value="0.10" min="0.10" max="25" step="0.10" style="width:100%;padding:12px;background:var(--bg-primary);border:1px solid var(--border-color);border-radius:12px;color:white;font-size:18px;text-align:center;"></div><div class="coinflip-options"><button class="coinflip-btn heads-btn" onclick="flipCoin('heads')">👤 Heads (2x)</button><button class="coinflip-btn tails-btn" onclick="flipCoin('tails')">🦊 Tails (2x)</button></div></div></div></div>
+
+            <!-- GAMES -->
+            <div class="page" id="gamesPage"><div class="page-header"><h2>🎮 Games</h2><p>Play and earn USDT & Hashrate</p></div><div class="games-list">
+                <div class="game-card-full glass-card" onclick="navigateTo('crash')"><div class="game-preview crash-preview">📈</div><div class="game-details"><h3>Crash</h3><p>Cash out before it crashes!</p><span class="game-reward">Win up to 100x</span><button class="play-btn gradient-orange">Play Now</button></div></div>
+                <div class="game-card-full glass-card" onclick="navigateTo('roulette')"><div class="game-preview roulette-preview">🎯</div><div class="game-details"><h3>Roulette</h3><p>Bet on red, black, or green</p><span class="game-reward">Win up to 14x</span><button class="play-btn gradient-blue">Play Now</button></div></div>
+                <div class="game-card-full glass-card" onclick="navigateTo('mines')"><div class="game-preview mines-preview">💣</div><div class="game-details"><h3>Mines</h3><p>Find gems, avoid bombs</p><span class="game-reward">Win up to 50x</span><button class="play-btn gradient-purple">Play Now</button></div></div>
+                <div class="game-card-full glass-card" onclick="navigateTo('coinflip')"><div class="game-preview coinflip-preview">🪙</div><div class="game-details"><h3>Coinflip</h3><p>Heads or tails? 50/50</p><span class="game-reward">Win 2x</span><button class="play-btn gradient-orange">Play Now</button></div></div>
+            </div></div>
+
+            <!-- LEADERBOARD -->
+            <div class="page" id="leadersPage"><div class="page-header"><h2>🏆 Leaderboard</h2></div><div class="top-three"><div class="top-player rank-2"><div class="player-avatar silver">🥈</div><span class="player-name">Player2</span><span class="player-score">500 USDT</span></div><div class="top-player rank-1"><div class="player-avatar gold">👑</div><span class="player-name">Player1</span><span class="player-score">1000 USDT</span></div><div class="top-player rank-3"><div class="player-avatar bronze">🥉</div><span class="player-name">Player3</span><span class="player-score">250 USDT</span></div></div><div class="ranking-list glass-card"><div class="ranking-item"><span class="rank">#4</span><span class="name">Player4</span><span class="score">200 USDT</span></div><div class="ranking-item"><span class="rank">#5</span><span class="name">Player5</span><span class="score">150 USDT</span></div><div class="ranking-item you"><span class="rank">#6</span><span class="name">You</span><span class="score">0 USDT</span></div></div></div>
+
+            <!-- TASKS -->
+            <div class="page" id="tasksPage"><div class="page-header"><h2>📋 Tasks</h2><p>Complete tasks to earn Free Spins!</p></div><div class="tasks-categories"><div class="category-tab active" onclick="filterTasks('daily', this)">Daily</div><div class="category-tab" onclick="filterTasks('bonus', this)">Bonus</div><div class="category-tab" onclick="filterTasks('partner', this)">Partner</div></div><div class="tasks-container" id="tasksContainer"></div></div>
+
+            <!-- BUY -->
+            <div class="page" id="buyPage"><div class="page-header"><h2>🛒 Buy Plans</h2><p>Mining Plans & Promotions</p></div><div class="promo-banner gradient-orange"><div class="promo-icon">⛏</div><h3>Mining Plans</h3><p>Buy hashrate & earn USDT daily!</p></div><div class="mining-plans" id="miningPlans"></div><div style="text-align: center; margin: 25px 0; color: #666;">───── 📢 ─────</div><div class="promo-banner gradient-purple"><div class="promo-icon">🚀</div><h3>Grow Your Channel!</h3><p>Real followers, real engagement</p></div><div class="promo-packages" id="promoPackages"></div></div>
+
+            <!-- PROFILE -->
+            <div class="page" id="profilePage"><div class="profile-header"><div class="profile-avatar">👤</div><h2 class="profile-name">User</h2><span class="profile-id">ID: user123</span></div><div class="balance-detail-card glass-card"><div class="detail-item"><span>💰 USDT Balance</span><span class="amount" id="profileUsdt">0.00 USDT</span></div><div class="detail-item"><span>⛏ Hashrate</span><span class="amount" id="profileHashrate">0.00 H/s</span></div><div class="detail-item"><span>🎰 Free Spins</span><span class="amount" id="profileSpins">0</span></div></div><div class="profile-actions"><button class="action-btn gradient-blue" onclick="showDepositModal()"><i class="fas fa-download"></i> Deposit</button><button class="action-btn gradient-purple" onclick="showWithdrawModal()"><i class="fas fa-upload"></i> Withdraw</button></div><div class="referral-card glass-card"><h3>👥 Referral Program</h3><p>Earn <span id="referralPercent">10%</span> of referrals' earnings</p><div class="referral-link"><input type="text" id="referralLink" value="t.me/foxigram_bot?start=ref123" readonly><button class="copy-btn" onclick="copyReferral()"><i class="fas fa-copy"></i></button></div><div class="referral-stats"><span id="referralCount">0 Referrals</span><span id="referralEarnings">0.00 USDT Earned</span></div></div></div>
+
+        </main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item active" onclick="navigateTo('home')"><i class="fas fa-home"></i><span>Home</span></div>
+            <div class="nav-item" onclick="navigateTo('games')"><i class="fas fa-gamepad"></i><span>Games</span></div>
+            <div class="nav-item" onclick="navigateTo('leaders')"><i class="fas fa-trophy"></i><span>Leaders</span></div>
+            <div class="nav-item" onclick="navigateTo('tasks')"><i class="fas fa-tasks"></i><span>Tasks</span></div>
+            <div class="nav-item buy-tab" onclick="navigateTo('buy')"><i class="fas fa-shopping-cart"></i><span>Buy</span></div>
+            <div class="nav-item" onclick="navigateTo('profile')"><i class="fas fa-user"></i><span>Profile</span></div>
+        </nav>
+
+        <div class="modal" id="spinModal"><div class="modal-content"><h2>🎰 Spin Result</h2><div class="spin-result" id="spinResultDisplay"></div><p id="spinWinMessage" class="win-message"></p><button class="modal-btn gradient-purple" onclick="closeSpinModal()">OK</button></div></div>
+        <div class="modal" id="depositModal"><div class="modal-content"><h2>💰 Deposit</h2><div class="deposit-options"><button class="deposit-option" onclick="selectDeposit('usdt')"><span>USDT</span><small>TRC20 Network</small></button><button class="deposit-option" onclick="selectDeposit('stars')"><span>⭐ Telegram Stars</span><small>Instant</small></button></div><button class="modal-close" onclick="closeDepositModal()">Cancel</button></div></div>
+        <div class="modal" id="withdrawModal"><div class="modal-content"><h2>💸 Withdraw USDT</h2><input type="text" class="modal-input" placeholder="USDT Address (TRC20)" id="withdrawAddress"><input type="number" class="modal-input" placeholder="Amount" id="withdrawAmount"><button class="modal-btn gradient-purple" onclick="submitWithdraw()">Withdraw</button><button class="modal-close" onclick="closeWithdrawModal()">Cancel</button></div></div>
+        <div class="toast" id="toast"></div>
+
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <script src="config.js"></script>
+    <script src="telegram.js"></script>
+    <script src="crash.js"></script>
+    <script src="roulette.js"></script>
+    <script src="mines.js"></script>
+    <script src="coinflip.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
