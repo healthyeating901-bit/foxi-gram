@@ -44,8 +44,6 @@
         input:checked + .slider:before { transform: translateX(24px); }
         .stat-box { background: #0a0a0a; border: 1px solid #2a2a2a; border-radius: 10px; padding: 15px; text-align: center; }
         .stat-box h3 { font-size: 28px; margin: 5px 0; }
-        .edit-form { display: none; margin-top: 10px; padding: 10px; background: #1a1a1a; border-radius: 10px; }
-        .edit-form.show { display: block; }
     </style>
 </head>
 <body>
@@ -66,7 +64,6 @@
             <button class="tab-btn" onclick="switchTab('broadcast')">📣 Broadcast</button>
         </div>
 
-        <!-- Dashboard -->
         <div class="tab-content active" id="dashboard">
             <div class="row">
                 <div class="col"><div class="stat-box"><p>Total Tasks</p><h3 id="statTasks" style="color:#667eea;">0</h3></div></div>
@@ -75,7 +72,6 @@
             </div>
         </div>
 
-        <!-- Rewards -->
         <div class="tab-content" id="rewards">
             <div class="section">
                 <h2>💰 Reward Settings</h2>
@@ -87,7 +83,6 @@
             </div>
         </div>
 
-        <!-- Mining -->
         <div class="tab-content" id="mining">
             <div class="section">
                 <h2>⛏ Mining Settings</h2>
@@ -99,16 +94,14 @@
             </div>
         </div>
 
-        <!-- Tasks -->
         <div class="tab-content" id="tasks">
             <div class="section">
                 <h2>📋 All Tasks</h2>
                 <div id="tasksListAdmin"><p style="color:#b0b0b0;">No tasks yet.</p></div>
-                
                 <div class="card" style="margin-top:15px; border: 2px solid #667eea;">
                     <h3 style="margin-bottom:10px;">➕ Create New Task</h3>
                     <div class="row">
-                        <div class="col"><div class="form-group"><label>Icon (Emoji)</label><input type="text" id="newTaskIcon" value="📋" placeholder="😊"></div></div>
+                        <div class="col"><div class="form-group"><label>Icon (Emoji)</label><input type="text" id="newTaskIcon" value="📋"></div></div>
                         <div class="col"><div class="form-group"><label>Category</label><select id="newTaskCategory"><option value="daily">Daily</option><option value="bonus">Bonus</option><option value="partner">Partner</option></select></div></div>
                     </div>
                     <div class="form-group"><label>Task Title *</label><input type="text" id="newTaskTitle" placeholder="e.g., Join Our Channel"></div>
@@ -117,25 +110,23 @@
                         <div class="col"><div class="form-group"><label>Reward (Spins)</label><input type="number" id="newTaskReward" value="1" min="1"></div></div>
                         <div class="col"><div class="form-group"><label>Action Type</label><select id="newTaskAction"><option value="join_channel">Join Channel</option><option value="invite">Invite Friends</option><option value="share">Share App</option><option value="login">Daily Login</option><option value="play_game">Play Game</option></select></div></div>
                     </div>
-                    <div class="form-group"><label>Link (for join_channel)</label><input type="text" id="newTaskLink" placeholder="https://t.me/yourchannel"></div>
+                    <div class="form-group"><label>Link</label><input type="text" id="newTaskLink" placeholder="https://t.me/..."></div>
                     <button class="btn btn-purple" onclick="addNewTask()">➕ Add Task</button>
                 </div>
             </div>
         </div>
 
-        <!-- Promotions -->
         <div class="tab-content" id="promotions">
             <div class="section">
                 <h2>📢 All Promotion Packages</h2>
                 <div id="promosListAdmin"><p style="color:#b0b0b0;">No packages yet.</p></div>
-                
                 <div class="card" style="margin-top:15px; border: 2px solid #00c853;">
-                    <h3 style="margin-bottom:10px;">➕ Create New Promotion Package</h3>
+                    <h3 style="margin-bottom:10px;">➕ Create New Package</h3>
                     <div class="row">
                         <div class="col"><div class="form-group"><label>Package Name *</label><input type="text" id="promoName" placeholder="e.g., 100 Followers"></div></div>
-                        <div class="col"><div class="form-group"><label>Icon (Emoji)</label><input type="text" id="promoIcon" value="👥"></div></div>
+                        <div class="col"><div class="form-group"><label>Icon</label><input type="text" id="promoIcon" value="👥"></div></div>
                     </div>
-                    <div class="form-group"><label>Description</label><input type="text" id="promoDesc" placeholder="e.g., Real Telegram followers"></div>
+                    <div class="form-group"><label>Description</label><input type="text" id="promoDesc"></div>
                     <div class="row">
                         <div class="col"><div class="form-group"><label>Price (USDT) *</label><input type="number" id="promoPrice" value="2" step="0.01"></div></div>
                         <div class="col"><div class="form-group"><label>Type</label><select id="promoType"><option value="followers">Followers</option><option value="post">Channel Post</option><option value="pin">Pinned Message</option></select></div></div>
@@ -146,51 +137,40 @@
             </div>
         </div>
 
-        <!-- Games -->
         <div class="tab-content" id="games">
             <div class="section">
                 <h2>🎮 Game Settings</h2>
-                <h3>📈 Crash Game</h3>
-                <div class="row">
-                    <div class="col"><div class="form-group"><label>Min Bet (USDT)</label><input type="number" id="crashMinBet" value="0.10" step="0.01"></div></div>
-                    <div class="col"><div class="form-group"><label>Max Bet (USDT)</label><input type="number" id="crashMaxBet" value="100" step="0.01"></div></div>
-                </div>
+                <h3>📈 Crash</h3>
+                <div class="row"><div class="col"><div class="form-group"><label>Min Bet</label><input type="number" id="crashMinBet" value="0.10" step="0.01"></div></div><div class="col"><div class="form-group"><label>Max Bet</label><input type="number" id="crashMaxBet" value="100" step="0.01"></div></div></div>
                 <h3>🎯 Roulette</h3>
-                <div class="row">
-                    <div class="col"><div class="form-group"><label>Min Bet</label><input type="number" id="rouletteMinBet" value="0.10" step="0.01"></div></div>
-                    <div class="col"><div class="form-group"><label>Max Bet</label><input type="number" id="rouletteMaxBet" value="50" step="0.01"></div></div>
-                </div>
+                <div class="row"><div class="col"><div class="form-group"><label>Min Bet</label><input type="number" id="rouletteMinBet" value="0.10" step="0.01"></div></div><div class="col"><div class="form-group"><label>Max Bet</label><input type="number" id="rouletteMaxBet" value="50" step="0.01"></div></div></div>
                 <button class="btn btn-purple" onclick="saveSettings('games')">💾 Save</button>
             </div>
         </div>
 
-        <!-- Ads -->
         <div class="tab-content" id="ads">
             <div class="section">
                 <h2>💵 AdsGram Settings</h2>
                 <div class="form-group"><label>AdsGram API Key</label><input type="text" id="adsgramKey" placeholder="AG-xxxxxxxxxxxx"></div>
-                <h3 style="margin:15px 0;">Show Ads On:</h3>
-                <div class="form-group"><label class="switch"><input type="checkbox" id="adsHome" checked><span class="slider"></span></label> Home Page (Banner)</div>
-                <div class="form-group"><label class="switch"><input type="checkbox" id="adsGames" checked><span class="slider"></span></label> Games Page (Banner)</div>
-                <div class="form-group"><label class="switch"><input type="checkbox" id="adsTasks" checked><span class="slider"></span></label> Tasks Page (Banner)</div>
-                <div class="form-group"><label class="switch"><input type="checkbox" id="adsAfterClaim" checked><span class="slider"></span></label> After Claiming Reward (Video)</div>
-                <div class="form-group"><label class="switch"><input type="checkbox" id="adsAfterGame" checked><span class="slider"></span></label> After Game Ends (Video)</div>
-                <div class="form-group"><label class="switch"><input type="checkbox" id="adsBeforeSpin" checked><span class="slider"></span></label> Before Free Spin (Video)</div>
-                <div class="form-group"><label class="switch"><input type="checkbox" id="adsPopup" checked><span class="slider"></span></label> Popup Ads (Every 60s)</div>
-                <button class="btn btn-purple" onclick="saveAdsSettings()">💾 Save Ad Settings</button>
+                <h3>Show Ads On:</h3>
+                <div class="form-group"><label class="switch"><input type="checkbox" id="adsHome" checked><span class="slider"></span></label> Home Page</div>
+                <div class="form-group"><label class="switch"><input type="checkbox" id="adsGames" checked><span class="slider"></span></label> Games Page</div>
+                <div class="form-group"><label class="switch"><input type="checkbox" id="adsTasks" checked><span class="slider"></span></label> Tasks Page</div>
+                <div class="form-group"><label class="switch"><input type="checkbox" id="adsAfterClaim" checked><span class="slider"></span></label> After Claiming</div>
+                <div class="form-group"><label class="switch"><input type="checkbox" id="adsAfterGame" checked><span class="slider"></span></label> After Game</div>
+                <div class="form-group"><label class="switch"><input type="checkbox" id="adsBeforeSpin" checked><span class="slider"></span></label> Before Spin</div>
+                <div class="form-group"><label class="switch"><input type="checkbox" id="adsPopup" checked><span class="slider"></span></label> Popup (60s)</div>
+                <button class="btn btn-purple" onclick="saveAdsSettings()">💾 Save Ads</button>
             </div>
         </div>
 
-        <!-- Broadcast -->
         <div class="tab-content" id="broadcast">
             <div class="section">
-                <h2>📣 Send Broadcast to All Users</h2>
-                <div class="form-group"><label>Message Title</label><input type="text" id="broadcastTitle" placeholder="🎉 Important Update!"></div>
-                <div class="form-group"><label>Message Body</label><textarea id="broadcastMsg" placeholder="Type your message to all users..."></textarea></div>
-                <div class="form-group"><label>Send to</label><select id="broadcastTarget"><option value="telegram">Telegram Channel + App</option><option value="app">App Notification Only</option><option value="channel">Telegram Channel Only</option></select></div>
-                <button class="btn btn-orange" onclick="sendBroadcast()">📣 Send Broadcast Now</button>
-                
-                <div style="margin-top:20px;"><h3>📝 Previous Broadcasts</h3><div id="broadcastHistory"><p style="color:#b0b0b0;">No broadcasts yet</p></div></div>
+                <h2>📣 Send Broadcast</h2>
+                <div class="form-group"><label>Message Title</label><input type="text" id="broadcastTitle" placeholder="🎉 Important!"></div>
+                <div class="form-group"><label>Message</label><textarea id="broadcastMsg" placeholder="Type message..."></textarea></div>
+                <button class="btn btn-orange" onclick="sendBroadcast()">📣 Send to Channel</button>
+                <div style="margin-top:20px;"><h3>📝 History</h3><div id="broadcastHistory"><p style="color:#b0b0b0;">No broadcasts</p></div></div>
             </div>
         </div>
     </div>
@@ -227,38 +207,26 @@
                 data.rouletteMaxBet = document.getElementById('rouletteMaxBet').value;
             }
             localStorage.setItem('admin_' + type, JSON.stringify(data));
-            alert('✅ Settings saved! Will apply on refresh.');
+            alert('✅ Saved!');
         }
 
-        // TASKS
         function loadTasksAdmin() {
             const tasks = JSON.parse(localStorage.getItem('admin_tasks') || '[]');
-            const container = document.getElementById('tasksListAdmin');
-            if(tasks.length === 0) {
-                container.innerHTML = '<p style="color:#b0b0b0;">No tasks yet. Create one below!</p>';
-                return;
-            }
-            container.innerHTML = tasks.map((t, i) => 
-                '<div class="card"><div class="row">' +
-                '<div class="col"><strong>' + t.icon + ' ' + t.title + '</strong><br><small>' + t.description + '</small><br>' +
-                '<span class="badge badge-warning">+' + t.reward + ' Spins</span> ' +
-                '<span class="badge badge-success">' + t.category + '</span> ' +
-                '<span class="badge badge-info">' + t.action + '</span></div>' +
-                '<div class="col" style="text-align:right;"><button class="btn btn-red" onclick="deleteTask(' + i + ')">🗑</button></div>' +
-                '</div></div>'
-            ).join('');
+            const c = document.getElementById('tasksListAdmin');
+            if(tasks.length === 0) { c.innerHTML = '<p style="color:#b0b0b0;">No tasks yet.</p>'; return; }
+            c.innerHTML = tasks.map((t, i) => '<div class="card"><div class="row"><div class="col"><strong>' + t.icon + ' ' + t.title + '</strong><br><small>' + t.description + '</small><br><span class="badge badge-warning">+' + t.reward + ' Spins</span> <span class="badge badge-success">' + t.category + '</span></div><div class="col" style="text-align:right;"><button class="btn btn-red" onclick="deleteTask(' + i + ')">🗑</button></div></div></div>').join('');
             updateStats();
         }
 
         function addNewTask() {
             const title = document.getElementById('newTaskTitle').value;
-            if(!title) { alert('Please enter task title!'); return; }
+            if(!title) { alert('Enter title!'); return; }
             const tasks = JSON.parse(localStorage.getItem('admin_tasks') || '[]');
             tasks.push({
                 id: 'task' + Date.now(),
                 icon: document.getElementById('newTaskIcon').value || '📋',
                 title: title,
-                description: document.getElementById('newTaskDesc').value || 'Complete this task',
+                description: document.getElementById('newTaskDesc').value || '',
                 category: document.getElementById('newTaskCategory').value,
                 reward: parseInt(document.getElementById('newTaskReward').value) || 1,
                 rewardType: 'spins',
@@ -268,45 +236,34 @@
             localStorage.setItem('admin_tasks', JSON.stringify(tasks));
             ['newTaskTitle','newTaskDesc','newTaskLink'].forEach(id => document.getElementById(id).value = '');
             loadTasksAdmin();
-            alert('✅ Task added successfully!');
+            alert('✅ Task added!');
         }
 
-        function deleteTask(index) {
-            if(confirm('Delete this task permanently?')) {
+        function deleteTask(i) {
+            if(confirm('Delete?')) {
                 const tasks = JSON.parse(localStorage.getItem('admin_tasks') || '[]');
-                tasks.splice(index, 1);
+                tasks.splice(i, 1);
                 localStorage.setItem('admin_tasks', JSON.stringify(tasks));
                 loadTasksAdmin();
             }
         }
 
-        // PROMOTIONS
         function loadPromosAdmin() {
             const promos = JSON.parse(localStorage.getItem('admin_promos') || '[]');
-            const container = document.getElementById('promosListAdmin');
-            if(promos.length === 0) {
-                container.innerHTML = '<p style="color:#b0b0b0;">No packages yet. Create one below!</p>';
-                return;
-            }
-            container.innerHTML = promos.map((p, i) => 
-                '<div class="card"><div class="row">' +
-                '<div class="col"><strong>' + p.icon + ' ' + p.name + '</strong><br><small>' + p.description + '</small><br>' +
-                '<span class="badge badge-success">' + p.price + ' ' + p.currency + '</span> ' +
-                '<span class="badge badge-info">' + p.type + '</span></div>' +
-                '<div class="col" style="text-align:right;"><button class="btn btn-red" onclick="deletePromo(' + i + ')">🗑</button></div>' +
-                '</div></div>'
-            ).join('');
+            const c = document.getElementById('promosListAdmin');
+            if(promos.length === 0) { c.innerHTML = '<p style="color:#b0b0b0;">No packages yet.</p>'; return; }
+            c.innerHTML = promos.map((p, i) => '<div class="card"><div class="row"><div class="col"><strong>' + p.icon + ' ' + p.name + '</strong><br><small>' + p.description + '</small><br><span class="badge badge-success">' + p.price + ' ' + p.currency + '</span></div><div class="col" style="text-align:right;"><button class="btn btn-red" onclick="deletePromo(' + i + ')">🗑</button></div></div></div>').join('');
             updateStats();
         }
 
         function addPromo() {
             const name = document.getElementById('promoName').value;
-            if(!name) { alert('Please enter package name!'); return; }
+            if(!name) { alert('Enter name!'); return; }
             const promos = JSON.parse(localStorage.getItem('admin_promos') || '[]');
             promos.push({
                 id: 'promo' + Date.now(),
                 name: name,
-                description: document.getElementById('promoDesc').value || 'Description',
+                description: document.getElementById('promoDesc').value || '',
                 icon: document.getElementById('promoIcon').value || '👥',
                 price: parseFloat(document.getElementById('promoPrice').value) || 2,
                 currency: document.getElementById('promoCurrency').value,
@@ -315,21 +272,20 @@
             localStorage.setItem('admin_promos', JSON.stringify(promos));
             ['promoName','promoDesc'].forEach(id => document.getElementById(id).value = '');
             loadPromosAdmin();
-            alert('✅ Package added successfully!');
+            alert('✅ Package added!');
         }
 
-        function deletePromo(index) {
-            if(confirm('Delete this package permanently?')) {
+        function deletePromo(i) {
+            if(confirm('Delete?')) {
                 const promos = JSON.parse(localStorage.getItem('admin_promos') || '[]');
-                promos.splice(index, 1);
+                promos.splice(i, 1);
                 localStorage.setItem('admin_promos', JSON.stringify(promos));
                 loadPromosAdmin();
             }
         }
 
-        // ADS
         function saveAdsSettings() {
-            const adsConfig = {
+            localStorage.setItem('admin_ads', JSON.stringify({
                 apiKey: document.getElementById('adsgramKey').value,
                 showHome: document.getElementById('adsHome').checked,
                 showGames: document.getElementById('adsGames').checked,
@@ -338,57 +294,58 @@
                 afterGame: document.getElementById('adsAfterGame').checked,
                 beforeSpin: document.getElementById('adsBeforeSpin').checked,
                 popup: document.getElementById('adsPopup').checked
-            };
-            localStorage.setItem('admin_ads', JSON.stringify(adsConfig));
-            alert('✅ Ad settings saved!');
+            }));
+            alert('✅ Ads saved!');
         }
 
-        // BROADCAST
+        // BROADCAST - FIXED
         function sendBroadcast() {
-            const title = document.getElementById('broadcastTitle').value || '📣 Announcement';
+            const title = document.getElementById('broadcastTitle').value || 'Announcement';
             const msg = document.getElementById('broadcastMsg').value;
-            const target = document.getElementById('broadcastTarget').value;
+            if(!msg) { alert('Type a message!'); return; }
             
-            if(!msg) { alert('Please type a message!'); return; }
+            const fullMsg = '📣 ' + title + '\n\n' + msg + '\n\n📅 ' + new Date().toLocaleString();
             
-            const fullMsg = title + '\n\n' + msg;
+            // Send via Telegram API
+            const token = '8564619157:AAG3F9Lv8LdwE5AMRg00XeX8ZKPuWLtkfS0';
+            const chatId = '-1003930229076';
+            const url = 'https://api.telegram.org/bot' + token + '/sendMessage';
             
-            if(target === 'telegram' || target === 'channel') {
-                sendToChannel(fullMsg);
-            }
-            
-            // Save to history
-            const history = JSON.parse(localStorage.getItem('broadcast_history') || '[]');
-            history.unshift({ title, msg, target, date: new Date().toLocaleString() });
-            if(history.length > 10) history.pop();
-            localStorage.setItem('broadcast_history', JSON.stringify(history));
-            
-            document.getElementById('broadcastMsg').value = '';
-            document.getElementById('broadcastTitle').value = '';
-            loadBroadcastHistory();
-            alert('✅ Broadcast sent to ' + target + '!');
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: chatId, text: fullMsg })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if(data.ok) {
+                    // Save history
+                    const history = JSON.parse(localStorage.getItem('broadcast_history') || '[]');
+                    history.unshift({ title, msg, date: new Date().toLocaleString() });
+                    if(history.length > 10) history.pop();
+                    localStorage.setItem('broadcast_history', JSON.stringify(history));
+                    
+                    document.getElementById('broadcastMsg').value = '';
+                    document.getElementById('broadcastTitle').value = '';
+                    loadBroadcastHistory();
+                    alert('✅ Broadcast sent to @foxigram_proofs!');
+                } else {
+                    alert('❌ Failed: ' + data.description);
+                }
+            })
+            .catch(() => alert('❌ Network error. Check bot token.'));
         }
 
         function loadBroadcastHistory() {
             const history = JSON.parse(localStorage.getItem('broadcast_history') || '[]');
-            const container = document.getElementById('broadcastHistory');
-            if(history.length === 0) {
-                container.innerHTML = '<p style="color:#b0b0b0;">No broadcasts yet</p>';
-                return;
-            }
-            container.innerHTML = history.map(h => 
-                '<div class="card"><strong>' + h.title + '</strong><br><small>' + h.msg.substring(0, 100) + '...</small><br><span class="badge badge-info">' + h.target + '</span> <span style="color:#b0b0b0;font-size:12px;">' + h.date + '</span></div>'
-            ).join('');
+            const c = document.getElementById('broadcastHistory');
+            if(history.length === 0) { c.innerHTML = '<p style="color:#b0b0b0;">No broadcasts yet</p>'; return; }
+            c.innerHTML = history.map(h => '<div class="card"><strong>' + h.title + '</strong><br><small>' + h.msg.substring(0, 80) + '...</small><br><span style="color:#b0b0b0;font-size:12px;">' + h.date + '</span></div>').join('');
         }
 
         function updateStats() {
-            const tasks = JSON.parse(localStorage.getItem('admin_tasks') || '[]');
-            const promos = JSON.parse(localStorage.getItem('admin_promos') || '[]');
-            const rewards = JSON.parse(localStorage.getItem('admin_rewards') || '{"dailyReward":"0.50"}');
-            
-            document.getElementById('statTasks').textContent = tasks.length;
-            document.getElementById('statPromos').textContent = promos.length;
-            document.getElementById('statDailyReward').textContent = rewards.dailyReward || '0.50';
+            document.getElementById('statTasks').textContent = (JSON.parse(localStorage.getItem('admin_tasks') || '[]')).length;
+            document.getElementById('statPromos').textContent = (JSON.parse(localStorage.getItem('admin_promos') || '[]')).length;
         }
 
         function loadSettings() {
