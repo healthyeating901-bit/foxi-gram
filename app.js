@@ -1,11 +1,50 @@
 // ============================================
-// FOXI GRAM - MAIN APP - ALL FIXED
+// FOXI GRAM - MAIN APP WITH TELEGRAM LOGIN
 // ============================================
 
 let currentPage = 'home';
 let isSpinning = false;
 let miningInterval = null;
 let adPopupInterval = null;
+let tgUser = null;
+
+// TELEGRAM LOGIN
+function initTelegramUser() {
+    if(window.Telegram && Telegram.WebApp) {
+        const webApp = Telegram.WebApp;
+        webApp.ready();
+        tgUser = webApp.initDataUnsafe?.user;
+        
+        if(tgUser) {
+            USER_DATA.id = String(tgUser.id);
+            USER_DATA.username = tgUser.username || tgUser.first_name || 'User';
+            USER_DATA.firstName = tgUser.first_name || 'User';
+            
+            // Check for referral
+            const startParam = webApp.initDataUnsafe?.start_param;
+            if(startParam && startParam !== USER_DATA.id) {
+                handleReferral(startParam);
+            }
+            
+            console.log('✅ Telegram User:', USER_DATA.username, USER_DATA.id);
+        }
+    } else {
+        console.log('⚠️ Not in Telegram - using stored ID');
+    }
+    
+    loadUserData();
+    saveUserData();
+    updateAllUI();
+}
+
+function handleReferral(referrerId) {
+    const referredBefore = localStorage.getItem('referred_by');
+    if(!referredBefore) {
+        localStorage.setItem('referred_by', referrerId);
+        USER_DATA.referredBy = referrerId;
+        console.log('🔗 Referred by:', referrerId);
+    }
+}
 
 // ADSGRAM
 let adsgramInstance = null;
@@ -20,9 +59,7 @@ function initAdsGram() {
     console.log('💰 AdsGram Ready');
 }
 
-function showAdsGramAd() {
-    if(adsgramInstance) { adsgramInstance.show(); }
-}
+function showAdsGramAd() { if(adsgramInstance) { adsgramInstance.show(); } }
 
 function getAdSettings() {
     const saved = localStorage.getItem('admin_ads');
@@ -41,7 +78,6 @@ function showAd(type) {
     showAdsGramAd();
 }
 
-// Watch Ad to Earn - USER REWARDED
 function watchAdForReward() {
     showToast('📺 Showing ad...', 'warning');
     showAdsGramAd();
@@ -50,7 +86,7 @@ function watchAdForReward() {
         USER_DATA.totalEarned += 0.05;
         saveUserData();
         updateAllUI();
-        showToast('✅ Earned 0.05 USDT from ad!', 'success');
+        showToast('✅ Earned 0.05 USDT!', 'success');
     }, 5000);
 }
 
@@ -63,7 +99,7 @@ function startPopupAds() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🦊 Foxi Gram Starting...');
     initAdsGram();
-    loadUserData();
+    initTelegramUser();
     loadAdminData();
     navigateTo('home');
     loadTasks('all');
@@ -77,7 +113,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if(ads.showHome) setTimeout(() => showAd('banner_home'), 3000);
 });
 
-// FIXED: Load admin data properly
 function loadAdminData() {
     try {
         const adminTasks = localStorage.getItem('admin_tasks');
@@ -85,13 +120,11 @@ function loadAdminData() {
             const tasks = JSON.parse(adminTasks);
             if(tasks.length > 0) APP_CONFIG.tasks = tasks;
         }
-        
         const adminPromos = localStorage.getItem('admin_promos');
         if(adminPromos && adminPromos !== '[]') {
             const promos = JSON.parse(adminPromos);
             if(promos.length > 0) APP_CONFIG.promotionPackages = promos;
         }
-        
         const adminRewards = localStorage.getItem('admin_rewards');
         if(adminRewards) {
             const r = JSON.parse(adminRewards);
@@ -99,7 +132,7 @@ function loadAdminData() {
             if(r.referralPercent) APP_CONFIG.rewards.referralPercent = parseInt(r.referralPercent);
             if(r.minWithdraw) APP_CONFIG.withdrawals.minWithdraw = parseFloat(r.minWithdraw);
         }
-    } catch(e) { console.log('Admin data load error:', e); }
+    } catch(e) {}
 }
 
 function loadUserData() {
@@ -133,6 +166,8 @@ function updateAllUI() {
     updateElement('referralPercent', APP_CONFIG.rewards.referralPercent + '%');
     updateElement('referralCount', USER_DATA.referrals + ' Referrals');
     updateElement('referralEarnings', USER_DATA.referralEarnings.toFixed(2) + ' USDT');
+    updateElement('profileName', USER_DATA.username || 'User');
+    updateElement('profileId', 'ID: ' + USER_DATA.id);
     updateMiningUI();
     const spinBtn = document.getElementById('spinButton');
     if(spinBtn) { spinBtn.disabled = USER_DATA.freeSpins <= 0; spinBtn.style.opacity = USER_DATA.freeSpins <= 0 ? '0.5' : '1'; }
@@ -141,7 +176,6 @@ function updateAllUI() {
 
 function updateElement(id, value) { const el = document.getElementById(id); if(el) el.textContent = value; }
 
-// FIXED: Referral link now uses actual bot link
 function updateReferralLink() {
     const linkEl = document.getElementById('referralLink');
     if(linkEl) {
@@ -187,7 +221,7 @@ function buyMiningPlan(planId) {
     const plan = APP_CONFIG.miningPlans.find(p => p.id === planId);
     if(!plan) return;
     if(USER_DATA.usdtBalance < plan.price) { showToast('Insufficient balance!', 'error'); return; }
-    if(confirm('Buy ' + plan.name + '?\n' + plan.hashrate + ' H/s\n' + plan.dailyEstimate + '\n' + plan.price + ' USDT')) {
+    if(confirm('Buy ' + plan.name + '?')) {
         USER_DATA.usdtBalance -= plan.price;
         USER_DATA.hashrate += plan.hashrate;
         if(!USER_DATA.purchasedPlans) USER_DATA.purchasedPlans = [];
@@ -201,19 +235,13 @@ function buyMiningPlan(planId) {
 function useFreeSpin() {
     if(isSpinning) return;
     if(USER_DATA.freeSpins <= 0) { showToast('No spins! Do tasks.', 'warning'); return; }
-    const ads = getAdSettings();
-    if(ads.beforeSpin) showAd('video_before_spin');
-    isSpinning = true;
-    USER_DATA.freeSpins--;
-    USER_DATA.totalSpinsUsed++;
-    updateAllUI();
+    isSpinning = true; USER_DATA.freeSpins--; USER_DATA.totalSpinsUsed++; updateAllUI();
     const slots = document.querySelectorAll('#spinsSlots .slot');
     const symbols = ['🍒', '💎', '🎰', '⭐', '👑', '⛏'];
     let count = 0;
     const animation = setInterval(() => {
         slots.forEach(s => { s.textContent = symbols[Math.floor(Math.random() * symbols.length)]; });
-        count++;
-        if(count >= 20) { clearInterval(animation); showSpinResult(slots); }
+        count++; if(count >= 20) { clearInterval(animation); showSpinResult(slots); }
     }, 100);
 }
 
@@ -230,7 +258,7 @@ function showSpinResult(slots) {
     if(result.reward >= 1) sendBigWinProof(USER_DATA.username, 'Free Spin', result.reward);
     setTimeout(() => {
         document.getElementById('spinResultDisplay').innerHTML = '<div class="result-slots"><span class="result-slot">' + result.symbol + '</span><span class="result-slot">' + result.symbol + '</span><span class="result-slot">' + result.symbol + '</span></div>';
-        document.getElementById('spinWinMessage').textContent = 'Won ' + result.reward + ' ' + result.type.toUpperCase() + '!';
+        document.getElementById('spinWinMessage').textContent = 'Won ' + result.reward + '!';
         document.getElementById('spinModal').style.display = 'flex';
         showToast('Won ' + result.reward + '!', 'success');
     }, 500);
@@ -263,8 +291,6 @@ function claimDailyReward() {
     USER_DATA.lastDailyClaim = new Date().toISOString();
     USER_DATA.freeSpins += 1;
     saveUserData(); updateAllUI();
-    const btn = document.getElementById('claimBtn');
-    if(btn) { btn.innerHTML = 'Claimed!'; setTimeout(() => { btn.innerHTML = 'Claim +' + APP_CONFIG.rewards.dailyReward + ' USDT'; }, 2000); }
     showToast('+' + APP_CONFIG.rewards.dailyReward + ' USDT + 1 Spin!', 'success');
     checkDailyReward();
 }
@@ -272,7 +298,7 @@ function claimDailyReward() {
 function loadTasks(category) {
     loadAdminData();
     const tasks = category === 'all' ? APP_CONFIG.tasks : APP_CONFIG.tasks.filter(t => t.category === category);
-    const html = tasks.length > 0 ? tasks.map(t => createTaskCard(t)).join('') : '<p style="color:#b0b0b0;text-align:center;padding:20px;">No tasks available. Check back later!</p>';
+    const html = tasks.length > 0 ? tasks.map(t => createTaskCard(t)).join('') : '<p style="color:#b0b0b0;text-align:center;padding:20px;">No tasks</p>';
     const c = document.getElementById('tasksContainer');
     const f = document.getElementById('tasksFeed');
     if(c) c.innerHTML = html;
@@ -287,7 +313,7 @@ function filterTasks(category, el) {
 
 function createTaskCard(task) {
     const done = USER_DATA.completedTasks.includes(task.id);
-    return '<div class="task-card glass-card ' + (done ? 'completed' : '') + '"><div class="task-header"><span>' + (task.icon || '📋') + '</span><span class="task-category">' + (task.category || 'task') + '</span><span class="task-reward">+' + (task.reward || 1) + ' SPINS</span></div><h3>' + (task.title || 'Task') + '</h3><p>' + (task.description || 'Complete this task') + '</p><button class="task-action-btn ' + (done ? 'completed' : '') + '" onclick="completeTask(\'' + task.id + '\')" ' + (done ? 'disabled' : '') + '>' + (done ? 'Done' : 'Start') + '</button></div>';
+    return '<div class="task-card glass-card ' + (done ? 'completed' : '') + '"><div class="task-header"><span>' + (task.icon || '📋') + '</span><span class="task-category">' + (task.category || 'task') + '</span><span class="task-reward">+' + (task.reward || 1) + ' SPINS</span></div><h3>' + (task.title || 'Task') + '</h3><p>' + (task.description || '') + '</p><button class="task-action-btn ' + (done ? 'completed' : '') + '" onclick="completeTask(\'' + task.id + '\')" ' + (done ? 'disabled' : '') + '>' + (done ? 'Done' : 'Start') + '</button></div>';
 }
 
 function completeTask(id) {
@@ -295,7 +321,6 @@ function completeTask(id) {
     const task = APP_CONFIG.tasks.find(t => t.id === id);
     if(!task) return;
     if(task.action === 'join_channel' && task.link) window.open(task.link, '_blank');
-    if(task.action === 'share' && navigator.share) navigator.share({ title: 'Foxi Gram', text: 'Earn USDT!', url: location.href });
     USER_DATA.completedTasks.push(id);
     USER_DATA.freeSpins += (task.reward || 1);
     saveUserData(); updateAllUI(); loadTasks('all');
@@ -306,14 +331,14 @@ function loadPromotions() {
     loadAdminData();
     const c = document.getElementById('promoPackages');
     if(!c) return;
-    c.innerHTML = APP_CONFIG.promotionPackages.length > 0 ? APP_CONFIG.promotionPackages.map(p => '<div class="package-card glass-card"><div class="package-icon">' + (p.icon || '👥') + '</div><h3>' + (p.name || 'Package') + '</h3><p class="package-desc">' + (p.description || '') + '</p><div class="package-price">' + (p.price || 0) + ' ' + (p.currency || 'USDT') + '</div><button class="buy-btn gradient-purple" onclick="buyPromotion(\'' + p.id + '\')">Buy Now</button></div>').join('') : '<p style="color:#b0b0b0;text-align:center;">No packages available</p>';
+    c.innerHTML = APP_CONFIG.promotionPackages.length > 0 ? APP_CONFIG.promotionPackages.map(p => '<div class="package-card glass-card"><div class="package-icon">' + (p.icon || '👥') + '</div><h3>' + (p.name || 'Package') + '</h3><p class="package-desc">' + (p.description || '') + '</p><div class="package-price">' + (p.price || 0) + ' USDT</div><button class="buy-btn gradient-purple" onclick="buyPromotion(\'' + p.id + '\')">Buy Now</button></div>').join('') : '<p style="color:#b0b0b0;text-align:center;">No packages</p>';
 }
 
 function buyPromotion(id) {
     const pkg = APP_CONFIG.promotionPackages.find(p => p.id === id);
     if(!pkg) return;
     if(USER_DATA.usdtBalance < pkg.price) { showToast('Insufficient!', 'error'); return; }
-    if(confirm('Buy ' + pkg.name + ' for ' + pkg.price + ' USDT?')) {
+    if(confirm('Buy ' + pkg.name + '?')) {
         USER_DATA.usdtBalance -= pkg.price;
         saveUserData(); updateAllUI();
         sendPromotionProof(USER_DATA.username, pkg.name, pkg.price);
@@ -341,14 +366,13 @@ function submitWithdraw() {
     closeWithdrawModal();
 }
 
-// FIXED: Copy referral link
 function copyReferral() {
     const input = document.getElementById('referralLink');
     if(!input) return;
     input.value = 'https://t.me/FoxigramBot?start=' + USER_DATA.id;
     input.select();
-    try { document.execCommand('copy'); showToast('Link copied! Share with friends!', 'success'); }
-    catch(e) { showToast('Copy this link: ' + input.value, 'warning'); }
+    try { document.execCommand('copy'); showToast('Link copied!', 'success'); }
+    catch(e) { showToast('Copy: ' + input.value, 'warning'); }
 }
 
 function showToast(msg, type) {
@@ -361,4 +385,4 @@ function showToast(msg, type) {
 
 function showNotifications() { showToast('Coming soon!', 'warning'); }
 
-console.log('✅ Foxi Gram Ready - All Fixed');
+console.log('✅ Foxi Gram Ready - Telegram Login Active');
