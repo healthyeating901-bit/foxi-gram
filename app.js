@@ -1,5 +1,5 @@
 // ============================================
-// FOXI GRAM - MAIN APP WITH TELEGRAM LOGIN
+// FOXI GRAM - MAIN APP - FIXED TASKS & REWARDS
 // ============================================
 
 let currentPage = 'home';
@@ -8,30 +8,20 @@ let miningInterval = null;
 let adPopupInterval = null;
 let tgUser = null;
 
-// TELEGRAM LOGIN
 function initTelegramUser() {
     if(window.Telegram && Telegram.WebApp) {
         const webApp = Telegram.WebApp;
         webApp.ready();
         tgUser = webApp.initDataUnsafe?.user;
-        
         if(tgUser) {
             USER_DATA.id = String(tgUser.id);
             USER_DATA.username = tgUser.username || tgUser.first_name || 'User';
             USER_DATA.firstName = tgUser.first_name || 'User';
-            
-            // Check for referral
             const startParam = webApp.initDataUnsafe?.start_param;
-            if(startParam && startParam !== USER_DATA.id) {
-                handleReferral(startParam);
-            }
-            
-            console.log('✅ Telegram User:', USER_DATA.username, USER_DATA.id);
+            if(startParam && startParam !== USER_DATA.id) { handleReferral(startParam); }
+            console.log('✅ Telegram User:', USER_DATA.username);
         }
-    } else {
-        console.log('⚠️ Not in Telegram - using stored ID');
     }
-    
     loadUserData();
     saveUserData();
     updateAllUI();
@@ -42,39 +32,32 @@ function handleReferral(referrerId) {
     if(!referredBefore) {
         localStorage.setItem('referred_by', referrerId);
         USER_DATA.referredBy = referrerId;
-        console.log('🔗 Referred by:', referrerId);
+        USER_DATA.referrals = (USER_DATA.referrals || 0) + 1;
     }
 }
 
-// ADSGRAM
 let adsgramInstance = null;
 const ADSGRAM_BLOCK_ID = '29232';
 
 function initAdsGram() {
-    if(typeof Adsgram === 'undefined') {
-        setTimeout(initAdsGram, 1000);
-        return;
-    }
+    if(typeof Adsgram === 'undefined') { setTimeout(initAdsGram, 1000); return; }
     adsgramInstance = Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
-    console.log('💰 AdsGram Ready');
 }
 
-function showAdsGramAd() { if(adsgramInstance) { adsgramInstance.show(); } }
-
+function showAdsGramAd() { if(adsgramInstance) adsgramInstance.show(); }
 function getAdSettings() {
     const saved = localStorage.getItem('admin_ads');
     return saved ? JSON.parse(saved) : { showHome: true, showGames: true, showTasks: true, afterClaim: true, afterGame: true, beforeSpin: true, popup: true };
 }
-
 function showAd(type) {
     const ads = getAdSettings();
-    if(type === 'banner_home' && !ads.showHome) return;
-    if(type === 'banner_games' && !ads.showGames) return;
-    if(type === 'banner_tasks' && !ads.showTasks) return;
-    if(type === 'video_after_claim' && !ads.afterClaim) return;
-    if(type === 'video_after_game' && !ads.afterGame) return;
-    if(type === 'video_before_spin' && !ads.beforeSpin) return;
-    if(type === 'popup' && !ads.popup) return;
+    if(type==='banner_home'&&!ads.showHome)return;
+    if(type==='banner_games'&&!ads.showGames)return;
+    if(type==='banner_tasks'&&!ads.showTasks)return;
+    if(type==='video_after_claim'&&!ads.afterClaim)return;
+    if(type==='video_after_game'&&!ads.afterGame)return;
+    if(type==='video_before_spin'&&!ads.beforeSpin)return;
+    if(type==='popup'&&!ads.popup)return;
     showAdsGramAd();
 }
 
@@ -84,8 +67,7 @@ function watchAdForReward() {
     setTimeout(() => {
         USER_DATA.usdtBalance += 0.05;
         USER_DATA.totalEarned += 0.05;
-        saveUserData();
-        updateAllUI();
+        saveUserData(); updateAllUI();
         showToast('✅ Earned 0.05 USDT!', 'success');
     }, 5000);
 }
@@ -113,6 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if(ads.showHome) setTimeout(() => showAd('banner_home'), 3000);
 });
 
+// FIXED: Load admin data & apply daily reward
 function loadAdminData() {
     try {
         const adminTasks = localStorage.getItem('admin_tasks');
@@ -130,6 +113,7 @@ function loadAdminData() {
             const r = JSON.parse(adminRewards);
             if(r.dailyReward) APP_CONFIG.rewards.dailyReward = parseFloat(r.dailyReward);
             if(r.referralPercent) APP_CONFIG.rewards.referralPercent = parseInt(r.referralPercent);
+            if(r.referralBonus) APP_CONFIG.rewards.referralBonus = parseFloat(r.referralBonus);
             if(r.minWithdraw) APP_CONFIG.withdrawals.minWithdraw = parseFloat(r.minWithdraw);
         }
     } catch(e) {}
@@ -164,8 +148,8 @@ function updateAllUI() {
     updateElement('spinsCount', USER_DATA.freeSpins + ' Spins Left');
     updateElement('dailyRewardAmount', APP_CONFIG.rewards.dailyReward.toFixed(2));
     updateElement('referralPercent', APP_CONFIG.rewards.referralPercent + '%');
-    updateElement('referralCount', USER_DATA.referrals + ' Referrals');
-    updateElement('referralEarnings', USER_DATA.referralEarnings.toFixed(2) + ' USDT');
+    updateElement('referralCount', (USER_DATA.referrals||0) + ' Referrals');
+    updateElement('referralEarnings', (USER_DATA.referralEarnings||0).toFixed(2) + ' USDT');
     updateElement('profileName', USER_DATA.username || 'User');
     updateElement('profileId', 'ID: ' + USER_DATA.id);
     updateMiningUI();
@@ -178,9 +162,7 @@ function updateElement(id, value) { const el = document.getElementById(id); if(e
 
 function updateReferralLink() {
     const linkEl = document.getElementById('referralLink');
-    if(linkEl) {
-        linkEl.value = 'https://t.me/FoxigramBot?start=' + USER_DATA.id;
-    }
+    if(linkEl) { linkEl.value = 'https://t.me/FoxigramBot?start=' + USER_DATA.id; }
 }
 
 function startMining() {
@@ -267,7 +249,9 @@ function showSpinResult(slots) {
 
 function closeSpinModal() { document.getElementById('spinModal').style.display = 'none'; updateAllUI(); }
 
+// FIXED: Daily reward uses admin setting
 function checkDailyReward() {
+    loadAdminData();
     const now = new Date();
     const last = USER_DATA.lastDailyClaim ? new Date(USER_DATA.lastDailyClaim) : null;
     const claimBtn = document.getElementById('claimBtn');
@@ -286,6 +270,7 @@ function checkDailyReward() {
 
 function claimDailyReward() {
     if(USER_DATA.dailyClaimed) return;
+    loadAdminData();
     USER_DATA.usdtBalance += APP_CONFIG.rewards.dailyReward;
     USER_DATA.dailyClaimed = true;
     USER_DATA.lastDailyClaim = new Date().toISOString();
@@ -316,11 +301,26 @@ function createTaskCard(task) {
     return '<div class="task-card glass-card ' + (done ? 'completed' : '') + '"><div class="task-header"><span>' + (task.icon || '📋') + '</span><span class="task-category">' + (task.category || 'task') + '</span><span class="task-reward">+' + (task.reward || 1) + ' SPINS</span></div><h3>' + (task.title || 'Task') + '</h3><p>' + (task.description || '') + '</p><button class="task-action-btn ' + (done ? 'completed' : '') + '" onclick="completeTask(\'' + task.id + '\')" ' + (done ? 'disabled' : '') + '>' + (done ? 'Done' : 'Start') + '</button></div>';
 }
 
+// FIXED: Task requires opening link before reward
 function completeTask(id) {
     if(USER_DATA.completedTasks.includes(id)) return;
     const task = APP_CONFIG.tasks.find(t => t.id === id);
     if(!task) return;
-    if(task.action === 'join_channel' && task.link) window.open(task.link, '_blank');
+    
+    // For join_channel - open link, give reward after returning
+    if(task.action === 'join_channel' && task.link) {
+        window.open(task.link, '_blank');
+        // Give reward after 3 seconds (user had time to join)
+        setTimeout(() => {
+            USER_DATA.completedTasks.push(id);
+            USER_DATA.freeSpins += (task.reward || 1);
+            saveUserData(); updateAllUI(); loadTasks('all');
+            showToast('+' + (task.reward || 1) + ' Spins!', 'success');
+        }, 3000);
+        return;
+    }
+    
+    // For other actions - give reward
     USER_DATA.completedTasks.push(id);
     USER_DATA.freeSpins += (task.reward || 1);
     saveUserData(); updateAllUI(); loadTasks('all');
@@ -385,4 +385,4 @@ function showToast(msg, type) {
 
 function showNotifications() { showToast('Coming soon!', 'warning'); }
 
-console.log('✅ Foxi Gram Ready - Telegram Login Active');
+console.log('✅ Foxi Gram Ready - Tasks & Rewards Fixed');
