@@ -1,11 +1,38 @@
 // ============================================
-// FOXI GRAM - MAIN APP WITH MAX ADS
+// FOXI GRAM - MAIN APP WITH REAL ADSGRAM ADS
 // ============================================
 
 let currentPage = 'home';
 let isSpinning = false;
 let miningInterval = null;
 let adPopupInterval = null;
+
+// ADSGRAM SDK
+(function() {
+    var s = document.createElement('script');
+    s.src = 'https://sad.adsgram.ai/js/sad.min.js';
+    s.async = true;
+    document.head.appendChild(s);
+})();
+
+let adsgramInstance = null;
+const ADSGRAM_BLOCK_ID = '29232';
+
+function initAdsGram() {
+    if(typeof Adsgram === 'undefined') {
+        setTimeout(initAdsGram, 1000);
+        return;
+    }
+    adsgramInstance = Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
+    console.log('💰 AdsGram Ready');
+}
+
+function showAdsGramAd() {
+    if(adsgramInstance) {
+        adsgramInstance.show();
+        console.log('💰 Real Ad Shown');
+    }
+}
 
 // Load Ad Settings
 function getAdSettings() {
@@ -16,12 +43,20 @@ function getAdSettings() {
     };
 }
 
-// Show Ad (simulated - replace with real AdsGram)
+// Show Ad
 function showAd(type) {
     const ads = getAdSettings();
-    console.log('💰 Ad shown: ' + type);
-    // When you get AdsGram API key, replace this:
-    // AdsGram.showAd({ type: type });
+    
+    if(type === 'banner_home' && !ads.showHome) return;
+    if(type === 'banner_games' && !ads.showGames) return;
+    if(type === 'banner_tasks' && !ads.showTasks) return;
+    if(type === 'video_after_claim' && !ads.afterClaim) return;
+    if(type === 'video_after_game' && !ads.afterGame) return;
+    if(type === 'video_before_spin' && !ads.beforeSpin) return;
+    if(type === 'popup' && !ads.popup) return;
+    
+    console.log('💰 Showing ad: ' + type);
+    showAdsGramAd();
 }
 
 // Popup ads every 60 seconds
@@ -31,12 +66,12 @@ function startPopupAds() {
     
     adPopupInterval = setInterval(() => {
         showAd('popup');
-        showToast('📢 Ad loading...', 'warning');
     }, 60000);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🦊 Foxi Gram Starting...');
+    initAdsGram();
     loadUserData();
     loadAdminData();
     navigateTo('home');
@@ -48,12 +83,10 @@ document.addEventListener('DOMContentLoaded', function() {
     updateAllUI();
     checkDailyReward();
     
-    // Show home page ad
     const ads = getAdSettings();
     if(ads.showHome) setTimeout(() => showAd('banner_home'), 2000);
 });
 
-// Load admin tasks/promos into app
 function loadAdminData() {
     const adminTasks = localStorage.getItem('admin_tasks');
     if(adminTasks) APP_CONFIG.tasks = JSON.parse(adminTasks);
@@ -94,7 +127,6 @@ function navigateTo(pageName) {
     currentPage = pageName;
     window.scrollTo(0, 0);
     
-    // Show ads on page navigation
     const ads = getAdSettings();
     if(pageName === 'games' && ads.showGames) setTimeout(() => showAd('banner_games'), 1000);
     if(pageName === 'tasks' && ads.showTasks) setTimeout(() => showAd('banner_tasks'), 1000);
@@ -176,7 +208,6 @@ function useFreeSpin() {
     if (isSpinning) return;
     if (USER_DATA.freeSpins <= 0) { showToast('No spins! Do tasks.', 'warning'); return; }
     
-    // Show ad before spin
     const ads = getAdSettings();
     if(ads.beforeSpin) showAd('video_before_spin');
     
@@ -245,7 +276,6 @@ function claimDailyReward() {
     if (btn) { btn.innerHTML = 'Claimed!'; setTimeout(() => { btn.innerHTML = 'Claim +' + APP_CONFIG.rewards.dailyReward + ' USDT'; }, 2000); }
     showToast('+' + APP_CONFIG.rewards.dailyReward + ' USDT + 1 Spin!', 'success');
     
-    // Show ad after claim
     const ads = getAdSettings();
     if(ads.afterClaim) setTimeout(() => showAd('video_after_claim'), 1500);
     
@@ -296,7 +326,7 @@ function loadPromotions() {
 function buyPromotion(id) {
     const pkg = APP_CONFIG.promotionPackages.find(p => p.id === id);
     if (!pkg) return;
-    if (USER_DATA.usdtBalance < pkg.price) { showToast('Insufficient balance!', 'error'); return; }
+    if (USER_DATA.usdtBalance < pkg.price) { showToast('Insufficient!', 'error'); return; }
     if (confirm('Buy ' + pkg.name + ' for ' + pkg.price + ' USDT?')) {
         USER_DATA.usdtBalance -= pkg.price;
         saveUserData(); updateAllUI();
@@ -339,4 +369,4 @@ function showToast(msg, type) {
 
 function showNotifications() { showToast('Coming soon!', 'warning'); }
 
-console.log('✅ Foxi Gram Ready - Ads Maximized');
+console.log('✅ Foxi Gram Ready - Real AdsGram Ads Active');
